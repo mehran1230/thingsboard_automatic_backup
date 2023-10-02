@@ -1,0 +1,12 @@
+# backup interval in days
+backupDayInterval : 7
+PostgreSQLBackupEnabled : true
+# if backup cassandra set to true thingsboard should turn off until backup completed.
+cassandraBackupEnabled : true
+saveLocalBackup :
+  enabled : true
+  # location should a folder. should start and end with / (fully absolute path)
+  location: "/root/thingsboardBackup/"
+  #save count is number of maximum backups that store in folder
+  maximumBackupsCount : 2
+
