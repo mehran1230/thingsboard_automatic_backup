@@ -1,4 +1,3 @@
-
 function parse_yaml {
   local prefix=$2
   local s='[[:space:]]*' w='[a-zA-Z0-9_]*' fs=$(echo @ | tr @ '\034')
@@ -97,14 +96,16 @@ function saveLocal() {
         #
         new_index=0
         for file in "${date_sorted_files[@]}"; do
-          sudo mv ${file} ${base_name}_${new_index}.tar.gz
+          if [ "${file}" != "${base_name}_${new_index}.tar.gz" ]; then
+            sudo mv ${file} ${base_name}_${new_index}.tar.gz
+          fi
           new_index=$((new_index + 1))
         done
 
-        file_to_rename="${sorted_files[i]}"
-
       done
+
     fi
+
     #endregion
   fi
   #endregion
@@ -151,7 +152,9 @@ function saveLocal() {
         sorted_files=("${filtered_files[@]}")
         new_index=0
         for file in "${date_sorted_files[@]}"; do
-          sudo mv ${file} ${base_name}_${new_index}.tar.gz
+          if [ "${file}" != "${base_name}_${new_index}.tar.gz" ]; then
+            sudo mv ${file} ${base_name}_${new_index}.tar.gz
+          fi
           new_index=$((new_index + 1))
         done
 
