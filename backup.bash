@@ -42,11 +42,11 @@ function createBackupFileNameForLocal() {
 
 }
 function createBackupFileNameForFTP() {
-
+ ftp_path="$1"
   export FTPFileNameIndex=0
   export FTPFileNameDate=$(date +"%Y_%m_%d")
 
-  while [[ -e "${saveFTPBackup_location}automatic_backup_postgres_${FTPFileNameDate}_${FTPFileNameIndex}.tar.gz" || -e "${saveFTPBackup_location}automatic_backup_cassandra_${FTPFileNameDate}_${FTPFileNameIndex}.tar.gz" ]]; do
+  while [[ -e "${ftp_path}${saveFTPBackup_location}automatic_backup_postgres_${FTPFileNameDate}_${FTPFileNameIndex}.tar.gz" || -e "${ftp_path}${saveFTPBackup_location}automatic_backup_cassandra_${FTPFileNameDate}_${FTPFileNameIndex}.tar.gz" ]]; do
     ((FTPFileNameIndex++))
   done
 
@@ -211,7 +211,7 @@ fi
   script_directory="$(cd "$(dirname "$0")" && pwd)"
   cd "$script_directory" || handleSIGINT
   echo "FTP is connected."
-  createBackupFileNameForFTP
+  createBackupFileNameForFTP "$ftp_path"
   #region postgreSQL
   if [ "$PostgreSQLBackupEnabled" = "true" ]; then
     echo "FTP Saving PostgreSQL . . ."
@@ -219,7 +219,6 @@ fi
     echo "PostgreSQL saved in FTP ${saveFTPBackup_location}automatic_backup_postgres_${FTPFileNameDate}_${FTPFileNameIndex}.tar.gz"
     # region remove old files if count is bigger than config file
     files=("${ftp_path}${saveFTPBackup_location}automatic_backup_postgres_"*)
-
     if [[ ${#files[@]} -gt $saveFTPBackup_maximumBackupsCount ]]; then
       # Sort files by creation time in ascending order
       sorted_files=($(ls -t -r -U "${files[@]}"))
@@ -260,6 +259,7 @@ fi
         for file in "${date_sorted_files[@]}"; do
           if [ "${file}" != "${base_name}_${new_index}.tar.gz" ]; then
             sudo mv ${file} ${base_name}_${new_index}.tar.gz
+            echo "rename '${file}' to '${base_name}_${new_index}.tar.gz' "
           fi
           new_index=$((new_index + 1))
         done
@@ -285,7 +285,6 @@ fi
 
       # Calculate the number of files to remove
       num_files_to_remove=$((${#files[@]} - saveFTPBackup_maximumBackupsCount))
-
       # Remove the oldest files
       for ((i = 0; i < num_files_to_remove; i++)); do
         file_to_remove="${sorted_files[i]}"
@@ -317,6 +316,7 @@ fi
         for file in "${date_sorted_files[@]}"; do
           if [ "${file}" != "${base_name}_${new_index}.tar.gz" ]; then
             sudo mv ${file} ${base_name}_${new_index}.tar.gz
+            echo "rename '${file}' to '${base_name}_${new_index}.tar.gz' "
           fi
           new_index=$((new_index + 1))
         done

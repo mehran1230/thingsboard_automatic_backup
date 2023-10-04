@@ -20,5 +20,6 @@ saveFTPBackup :
   # location should a folder. should start and end with /
   location: "/thingsboardBackup/"
   #save count is number of maximum backups that store in FTP
-  maximumBackupsCount : 4
+  maximumBackupsCount : 3
+  retryCount : 1
 
