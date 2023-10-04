@@ -3,10 +3,22 @@ backupDayInterval : 7
 PostgreSQLBackupEnabled : true
 # if backup cassandra set to true thingsboard should turn off until backup completed.
 cassandraBackupEnabled : true
+#If Turn Off Save Local the backup file do'nt save on this pc !!!!!
 saveLocalBackup :
   enabled : true
   # location should a folder. should start and end with / (fully absolute path)
   location: "/root/thingsboardBackup/"
   #save count is number of maximum backups that store in folder
-  maximumBackupsCount : 2
+  maximumBackupsCount : 4
+
+saveFTPBackup :
+  enabled : true
+  userName : 'platformFTP@arvinet.com'
+  password : 'pzEkq5ogRyRi'
+  address : 'ftp.arvinet.com'
+  port : 21
+  # location should a folder. should start and end with /
+  location: "/thingsboardBackup/"
+  #save count is number of maximum backups that store in FTP
+  maximumBackupsCount : 4
 
