@@ -1,7 +1,7 @@
 # backup interval in days
 backupDayInterval : 7
 # back time should in 24h format and not contains seconds (threshold is 30min) e.g: 23:00
-backupTime : '09:31'
+backupTime : '04:30'
 PostgreSQLBackupEnabled : true
 # if backup cassandra set to true thingsboard should turn off until backup completed.
 cassandraBackupEnabled : true
@@ -15,18 +15,20 @@ saveLocalBackup :
 
 saveFTPBackup :
   enabled : true
-  userName : 'platformFTP@arvinet.com'
-  password : 'pzEkq5ogRyRi'
-  address : 'ftp.arvinet.com'
+  userName : 'FTPUserName'
+  password : 'FTPPassword'
+  address : 'ftp.address.com'
   port : 21
   # location should a folder. should start and end with /
   location: "/thingsboardBackup/"
   #save count is number of maximum backups that store in FTP
   maximumBackupsCount : 3
+  # the maximum time that trasnfer file from local to ftp server (3s -> 3seconds, 5m -> 5 minutes, 1h -> 1 hour)def:20m
+  transferTimeout: 20m
   # number of retry if can't save file on ftp location
   retry:
     # number of retry if can't save file on ftp location
-    count : 100
+    count : 40
     # minutes to wait between each retry
     wait: 1
 

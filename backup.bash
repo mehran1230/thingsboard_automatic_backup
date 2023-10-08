@@ -201,23 +201,19 @@ $password" > /dev/null 2>&1 # make sure there is no space before $password
 
   done
   if [[ "$ftp_path" = "1111" ]]; then
-    echo "1" >&2
     result=1
   fi
   cd $ftp_path || result=1
-    echo "2" >&2
   sudo mkdir -p ".${saveFTPBackup_location}" || result=1
-    echo "3" >&2
   script_directory="$(cd "$(dirname "$0")" && pwd)"
   cd "$script_directory" || result=1
-  echo "4" >&2
   echo "FTP is connected." >&2
 
   createBackupFileNameForFTP "$ftp_path"
   #region postgreSQL
   if [ "$PostgreSQLBackupEnabled" = "true" ]; then
     echo "FTP Saving PostgreSQL . . ." >&2
-    sudo rsync --progress automatic_backup_postgres.tar.gz "${ftp_path}${saveFTPBackup_location}automatic_backup_postgres_${FTPFileNameDate}_${FTPFileNameIndex}.tar.gz"  || result=1
+    timeout $saveFTPBackup_transferTimeout sudo rsync  --progress automatic_backup_postgres.tar.gz "${ftp_path}${saveFTPBackup_location}automatic_backup_postgres_${FTPFileNameDate}_${FTPFileNameIndex}.tar.gz"  || result=1
     echo "PostgreSQL saved in FTP ${saveFTPBackup_location}automatic_backup_postgres_${FTPFileNameDate}_${FTPFileNameIndex}.tar.gz" >&2
     # region remove old files if count is bigger than config file
     files=("${ftp_path}${saveFTPBackup_location}automatic_backup_postgres_"*)
@@ -276,7 +272,7 @@ $password" > /dev/null 2>&1 # make sure there is no space before $password
   #region Cassandra
   if [ "$cassandraBackupEnabled" = "true" ]; then
     echo "FTP Saving Cassandra . . ." >&2
-    sudo rsync --progress automatic_backup_cassandra.tar.gz "${ftp_path}${saveFTPBackup_location}automatic_backup_cassandra_${FTPFileNameDate}_${FTPFileNameIndex}.tar.gz"  || result=1
+    timeout $saveFTPBackup_transferTimeout sudo rsync --progress automatic_backup_cassandra.tar.gz "${ftp_path}${saveFTPBackup_location}automatic_backup_cassandra_${FTPFileNameDate}_${FTPFileNameIndex}.tar.gz"  || result=1
     echo "Cassandra saved in FTP ${saveFTPBackup_location}automatic_backup_cassandra_${FTPFileNameDate}_${FTPFileNameIndex}.tar.gz" >&2
     # region remove old files if count is bigger than config file
     files=("${ftp_path}${saveFTPBackup_location}automatic_backup_cassandra_"*)
@@ -331,7 +327,7 @@ $password" > /dev/null 2>&1 # make sure there is no space before $password
   address=$saveFTPBackup_address
   gio mount -u ftp://$address #disconnect FTP
   echo "FTP is Disconnected" >&2
-  echo $result
+  return $result
 }
 function CheckAndSaveBackups() {
   if [ "$saveLocalBackup_enabled" = "true" ]; then
@@ -353,7 +349,7 @@ function CheckAndSaveBackups() {
         gio mount -u ftp://$address #disconnect FTP
 
         sleep $(($saveFTPBackup_retry_wait * 60))
-        echo "retry . . ."
+        echo "retry (${i+1}/${saveFTPBackup_retry_count}). . ."
       fi
     done
 
