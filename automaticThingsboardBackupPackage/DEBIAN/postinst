@@ -1,0 +1,18 @@
+#!/bin/sh
+
+set -e
+
+case "$1" in
+    configure)
+        # Enable and start the service
+        systemctl enable automaticThingsboardBackup.service
+        systemctl start automaticThingsboardBackup.service
+        ;;
+    *)
+        # For other cases, do nothing
+        ;;
+esac
+
+# Exit successfully
+exit 0
+

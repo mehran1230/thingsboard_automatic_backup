@@ -1,0 +1,7 @@
+Package: automaticThingsboardBackup
+Version: 1.0
+Architecture: all
+Maintainer: Mehran <meh.aghagany1378037@gmail.com>
+Description: autmatic thingsboard bakcup databases
+Depends: systemd, libglib2.0-dev, mount, rsync
+postinst: DEBIAN/postinst

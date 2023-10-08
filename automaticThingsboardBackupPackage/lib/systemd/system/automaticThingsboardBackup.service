@@ -1,0 +1,11 @@
+[Unit]
+Description=Automatic Thingsboard Backup
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/bash -ci "dbus-run-session bash /usr/bin/automaticThingsboardBackup/automaticThingsboardBackup.bash"
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

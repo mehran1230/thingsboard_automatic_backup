@@ -368,7 +368,8 @@ function main() {
 
   while true; do
     cd "$script_directory"
-    eval $(parse_yaml backupConfig.yaml)
+    configFilePath="../../../etc/automaticThingsboardBackup/automaticThingsboardBackupConfig.yml"
+    eval $(parse_yaml $configFilePath)
     backupIntervalInTs=$(($backupDayInterval * 86400))
     if [ -e "$script_directory/last_backup_time.txt" ]; then
       lastBackupTime=$(cat "$script_directory/last_backup_time.txt")

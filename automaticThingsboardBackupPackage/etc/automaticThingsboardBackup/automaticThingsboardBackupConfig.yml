@@ -1,3 +1,4 @@
+# dev config file is in repo folder and main config file path is /etc/automaticThingsboardBackup/automaticThingsboardBackupConfig.yml
 # backup interval in days
 backupDayInterval : 7
 # back time should in 24h format and not contains seconds (threshold is 30min) e.g: 23:00
