@@ -18,6 +18,7 @@ function parse_yaml {
 function backupPostgreSQL() {
   echo "Backup PostgreSQL . . ."
   sudo -Hiu postgres pg_dump thingsboard | gzip -9 - >automatic_backup_postgres.tar.gz
+  sudo chmod 777 automatic_backup_postgres.tar.gz
   echo "Backup PostgreSQL Completed."
 }
 function backupCassandra() {
@@ -27,7 +28,9 @@ function backupCassandra() {
   sudo systemctl stop cassandra
   tar cvf - /var/lib/cassandra/ 2>/dev/null | gzip -9 - >automatic_backup_cassandra.tar.gz
   sudo systemctl restart cassandra
+  sleep 60
   sudo systemctl restart thingsboard
+  sudo chmod 777 automatic_backup_cassandra.tar.gz
   echo "Backup Cassandra Completed."
 }
 function createBackupFileNameForLocal() {
