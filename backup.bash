@@ -325,7 +325,7 @@ $password" > /dev/null 2>&1 # make sure there is no space before $password
   fi
   #endregion
   address=$saveFTPBackup_address
-  gio mount -u ftp://$address #disconnect FTP
+  gio mount -fu ftp://$address #disconnect FTP
   echo "FTP is Disconnected" >&2
   return $result
 }
@@ -346,7 +346,7 @@ function CheckAndSaveBackups() {
         address=$saveFTPBackup_address
 
         echo "wait ${saveFTPBackup_retry_wait} min before retrying . . . "
-        gio mount -u ftp://$address #disconnect FTP
+        gio mount -fu ftp://$address #disconnect FTP
 
         sleep $(($saveFTPBackup_retry_wait * 60))
         echo "retry (${i+1}/${saveFTPBackup_retry_count}). . ."
@@ -401,7 +401,7 @@ function handleSIGINT() {
   script_directory="$(cd "$(dirname "$0")" && pwd)"
   cd "$script_directory"
   address=$saveFTPBackup_address
-  gio mount -u ftp://$address #disconnect FTP
+  gio mount -fu ftp://$address #disconnect FTP
   removeCurrentBackup
   exit
 }
