@@ -9,4 +9,4 @@ just run the following command
 sudo bash -ci "dbus-run-session bash {abs path to the repo}/thingsboard_automatic_backup/backup.bash"
 ```
 ## How To Config?
-just edit backupConfig.yaml and restart the bash
+just edit backupConfig.yaml (there is no need to restart the bash)
