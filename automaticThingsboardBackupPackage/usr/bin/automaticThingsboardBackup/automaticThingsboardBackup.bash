@@ -193,7 +193,7 @@ function saveFTP() {
   echo "connecting to FTP . . ." >&2
   gio mount "ftp://${address}:${port}" <<<"$username
 $password" > /dev/null 2>&1 # make sure there is no space before $password
-  check_folder='ftp:host=ftp.arvinet.com'
+  check_folder="ftp:host=${address}"
   mount_pathes=$(mount | grep gvfsd-fuse)
   addresses=$(echo "$mount_pathes" | grep -oP '/\S+')
 
