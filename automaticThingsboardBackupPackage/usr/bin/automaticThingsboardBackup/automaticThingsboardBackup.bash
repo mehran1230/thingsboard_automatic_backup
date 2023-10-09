@@ -369,10 +369,11 @@ function main() {
   while true; do
     cd "$script_directory"
     configFilePath="../../../etc/automaticThingsboardBackup/automaticThingsboardBackupConfig.yml"
+    lastBackupTimeFilePath="../../../etc/automaticThingsboardBackup/last_backup_time.txt"
     eval $(parse_yaml $configFilePath)
     backupIntervalInTs=$(($backupDayInterval * 86400))
-    if [ -e "$script_directory/last_backup_time.txt" ]; then
-      lastBackupTime=$(cat "$script_directory/last_backup_time.txt")
+    if [ -e "$lastBackupTimeFilePath" ]; then
+      lastBackupTime=$(cat "$lastBackupTimeFilePath")
     else
       lastBackupTime=0
     fi
@@ -391,7 +392,7 @@ function main() {
       checkConfigAndBackup
       CheckAndSaveBackups
       removeCurrentBackup
-      echo "$(date +"%s")" >"$script_directory/last_backup_time.txt"
+      echo "$(date +"%s")" >"$lastBackupTimeFilePath"
     fi
 
     echo "waiting . . . "
