@@ -6,7 +6,7 @@ case "$1" in
     configure)
         # Enable and start the service
         systemctl enable automaticThingsboardBackup.service
-        systemctl start automaticThingsboardBackup.service
+        systemctl restart automaticThingsboardBackup.service
         ;;
     *)
         # For other cases, do nothing
