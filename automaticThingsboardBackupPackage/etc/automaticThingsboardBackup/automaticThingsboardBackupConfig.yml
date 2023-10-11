@@ -17,6 +17,7 @@ saveLocalBackup :
 saveFTPBackup :
   enabled : true
   userName : 'FTPUserName'
+  # password only can contain a-z A-Z 0-9
   password : 'FTPPassword'
   address : 'ftp.address.com'
   port : 21
