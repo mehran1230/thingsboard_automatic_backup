@@ -183,23 +183,25 @@ function saveLocal() {
 function saveFTP() {
   username=$saveFTPBackup_userName
   password=$saveFTPBackup_password
-  address=$saveFTPBackup_address
+  FTPAddress=$saveFTPBackup_address
   port=$saveFTPBackup_port
   result=0
   ftp_path="1111"
   #  encoded_username=$(printf "%s" "$username" | jq -s -R -r @uri)
-  #  encoded_password=$(printf "%s" "$password" | jq -s -R -r @uri)
-  #  encoded_address=$(printf "%s" "$address" | jq -s -R -r @uri)
+  #    encoded_password=$(printf "%s" "$password" | jq -s -R -r @uri)
+  #  encoded_address=$(printf "%s" "$FTPAddress" | jq -s -R -r @uri)
   echo "connecting to FTP . . ." >&2
-  gio mount "ftp://${address}:${port}" <<<"$username
-$password" > /dev/null 2>&1 # make sure there is no space before $password
-  check_folder="ftp:host=${address}"
+  gio mount -fu ftp://$FTPaddress >/dev/null 2>&1 #disconnect FTP
+  gio mount "ftp://${FTPAddress}:${port}" <<<"$username
+$password" >/dev/null 2>&1 # make sure there is no space before $password
+  check_folder="ftp:host=${FTPAddress}"
   mount_pathes=$(mount | grep gvfsd-fuse)
   addresses=$(echo "$mount_pathes" | grep -oP '/\S+')
 
   for address in $addresses; do
     if [[ -d "$address/$check_folder" ]]; then
       ftp_path="$address/$check_folder"
+      break
     fi
 
   done
@@ -213,10 +215,11 @@ $password" > /dev/null 2>&1 # make sure there is no space before $password
   echo "FTP is connected." >&2
 
   createBackupFileNameForFTP "$ftp_path"
+  find "$ftp_path" -type f -name ".automatic_backup_*.tar.gz.*" -delete # remove uncompleted copy in FTP server
   #region postgreSQL
   if [ "$PostgreSQLBackupEnabled" = "true" ]; then
-    echo "FTP Saving PostgreSQL . . ." >&2
-    timeout $saveFTPBackup_transferTimeout sudo rsync  --progress automatic_backup_postgres.tar.gz "${ftp_path}${saveFTPBackup_location}automatic_backup_postgres_${FTPFileNameDate}_${FTPFileNameIndex}.tar.gz"  || result=1
+    echo "FTP Saving PostgreSQL (${saveFTPBackup_transferTimeout} min timout). . ." >&2
+    timeout $saveFTPBackup_transferTimeout sudo rsync --progress automatic_backup_postgres.tar.gz "${ftp_path}${saveFTPBackup_location}automatic_backup_postgres_${FTPFileNameDate}_${FTPFileNameIndex}.tar.gz" || result=1
     echo "PostgreSQL saved in FTP ${saveFTPBackup_location}automatic_backup_postgres_${FTPFileNameDate}_${FTPFileNameIndex}.tar.gz" >&2
     # region remove old files if count is bigger than config file
     files=("${ftp_path}${saveFTPBackup_location}automatic_backup_postgres_"*)
@@ -274,8 +277,8 @@ $password" > /dev/null 2>&1 # make sure there is no space before $password
   #endregion
   #region Cassandra
   if [ "$cassandraBackupEnabled" = "true" ]; then
-    echo "FTP Saving Cassandra . . ." >&2
-    timeout $saveFTPBackup_transferTimeout sudo rsync --progress automatic_backup_cassandra.tar.gz "${ftp_path}${saveFTPBackup_location}automatic_backup_cassandra_${FTPFileNameDate}_${FTPFileNameIndex}.tar.gz"  || result=1
+    echo "FTP Saving Cassandra  (${saveFTPBackup_transferTimeout} min timout) . . ." >&2
+    timeout $saveFTPBackup_transferTimeout sudo rsync --progress automatic_backup_cassandra.tar.gz "${ftp_path}${saveFTPBackup_location}automatic_backup_cassandra_${FTPFileNameDate}_${FTPFileNameIndex}.tar.gz" || result=1
     echo "Cassandra saved in FTP ${saveFTPBackup_location}automatic_backup_cassandra_${FTPFileNameDate}_${FTPFileNameIndex}.tar.gz" >&2
     # region remove old files if count is bigger than config file
     files=("${ftp_path}${saveFTPBackup_location}automatic_backup_cassandra_"*)
@@ -327,9 +330,12 @@ $password" > /dev/null 2>&1 # make sure there is no space before $password
     #endregion
   fi
   #endregion
-  address=$saveFTPBackup_address
-  gio mount -fu ftp://$address #disconnect FTP
+  FTPaddress=$saveFTPBackup_address
+  find "$ftp_path" -type f -name ".automatic_backup_*.tar.gz.*" -delete # remove uncompleted copy in FTP server
+
+  gio mount -fu ftp://$FTPaddress >/dev/null 2>&1 #disconnect FTP
   echo "FTP is Disconnected" >&2
+
   return $result
 }
 function CheckAndSaveBackups() {
@@ -349,7 +355,7 @@ function CheckAndSaveBackups() {
         address=$saveFTPBackup_address
 
         echo "wait ${saveFTPBackup_retry_wait} min before retrying . . . "
-        gio mount -fu ftp://$address #disconnect FTP
+        gio mount -fu ftp://$address >/dev/null 2>&1 #disconnect FTP
 
         sleep $(($saveFTPBackup_retry_wait * 60))
         echo "retry (${i+1}/${saveFTPBackup_retry_count}). . ."
@@ -388,7 +394,7 @@ function main() {
     # Calculate the difference in minutes
     time_diff=$(($current_minutes - $backup_minutes))
 
-    if [[ "$spentTimeFromLastBackup" -gt "$backupIntervalInTs" && $time_diff -gt 0 && $time_diff -lt 30 ]]; then
+    if [[ "$spentTimeFromLastBackup" -ge "$backupIntervalInTs" && $time_diff -ge 0 && $time_diff -le 30 ]]; then
       checkConfigAndBackup
       CheckAndSaveBackups
       removeCurrentBackup
@@ -406,7 +412,7 @@ function handleSIGINT() {
   script_directory="$(cd "$(dirname "$0")" && pwd)"
   cd "$script_directory"
   address=$saveFTPBackup_address
-  gio mount -fu ftp://$address #disconnect FTP
+  gio mount -fu ftp://$address >/dev/null 2>&1 #disconnect FTP
   removeCurrentBackup
   exit
 }
