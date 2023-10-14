@@ -3,5 +3,5 @@ Version: 1.0
 Architecture: all
 Maintainer: Mehran <meh.aghagany1378037@gmail.com>
 Description: autmatic thingsboard bakcup databases
-Depends: systemd, libglib2.0-dev, mount, rsync
+Depends: systemd, libglib2.0-dev, mount, rsync, gvfs-fuse, gvfs-backends, libglib2.0-bin
 postinst: DEBIAN/postinst
