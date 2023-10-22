@@ -395,10 +395,11 @@ function main() {
     time_diff=$(($current_minutes - $backup_minutes))
 
     if [[ "$spentTimeFromLastBackup" -ge "$backupIntervalInTs" && $time_diff -ge 0 && $time_diff -le 30 ]]; then
+      currentBackupTime="$(date +"%s")"
       checkConfigAndBackup
       CheckAndSaveBackups
       removeCurrentBackup
-      echo "$(date +"%s")" >"$lastBackupTimeFilePath"
+      echo $currentBackupTime >"$lastBackupTimeFilePath"
     fi
 
     echo "waiting . . . "
